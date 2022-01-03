@@ -46,12 +46,12 @@ import re
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 from textblob import TextBlob
 from PIL import Image
-
+import PyPDF2
 import gradio as gr
 from zipfile import ZipFile
-import tika
-tika.initVM()
-from tika import parser
+# import tika
+# tika.initVM()
+# from tika import parser
 
 nltk.download('stopwords')
 nltk.download('punkt')
@@ -63,13 +63,14 @@ nltk.download('wordnet')
 """## PARSING FILES"""
 
 def Parsing(parsed_text):
-  parsed_text=parsed_text.name
-  raw_party =parser.from_file(parsed_text) 
-  # parser.parse1(option='all',urlOrPath=parsed_text)
-  # from_buffer(parsed_text)
-  # from_file(parsed_text)
-  raw_party = raw_party['content']
-  return clean(raw_party)
+    #   parsed_text=parsed_text.name
+    raw_party=PyPDF2.PdfFileReader(parsed_text)
+#     raw_party =parser.from_file(parsed_text) 
+    # parser.parse1(option='all',urlOrPath=parsed_text)
+    # from_buffer(parsed_text)
+    # from_file(parsed_text)
+    raw_party = raw_party['content']
+    return clean(raw_party)
 
 
 
