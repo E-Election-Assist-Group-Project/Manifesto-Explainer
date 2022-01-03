@@ -30,7 +30,6 @@ from nltk.tokenize import word_tokenize,sent_tokenize
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 from nltk.stem import WordNetLemmatizer
-from tika import parser
 from nltk.corpus import stopwords 
 from nltk.tokenize import word_tokenize
 from nltk.probability import FreqDist
@@ -50,7 +49,9 @@ from PIL import Image
 
 import gradio as gr
 from zipfile import ZipFile
-
+import tika
+tika.initVM()
+from tika import parser
 
 nltk.download('stopwords')
 nltk.download('punkt')
