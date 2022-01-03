@@ -1,0 +1,9 @@
+gradio
+clean-text
+tika
+nltk
+wordcloud
+PIL
+textblob
+zipfile36
+matplotlib
