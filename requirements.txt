@@ -1,6 +1,6 @@
 gradio
 clean-text
-tika
+PyPDF2==1.26.0
 nltk
 wordcloud
 textblob
