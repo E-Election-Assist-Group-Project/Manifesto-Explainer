@@ -62,8 +62,7 @@ nltk.download('wordnet')
 """## PARSING FILES"""
 
 def Parsing(parsed_text):
-      parsed_text=parsed_text.name
-#     raw_party=PyPDF2.PdfFileReader(parsed_text)
+    parsed_text=parsed_text.name
     raw_party =parser.from_file(parsed_text) 
     # parser.parse1(option='all',urlOrPath=parsed_text)
     # from_buffer(parsed_text)
@@ -91,7 +90,7 @@ def clean_text(text):
   text = text.strip(" ")
   text = re.sub(" +", " ", text).strip()  # get rid of multiple spaces and replace with a single
   
-  text = [word for word in text.split() if word not in STOPWORDS]
+  text = [word for word in text.split() if word not in stop_words]
   text = ' '.join(text)
   return text
 
