@@ -34,7 +34,7 @@ from nltk.text import Text
 from io import StringIO
 import sys 
 import pandas as pd
-import cv2
+# import cv2
 import re
 
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
@@ -59,7 +59,7 @@ nltk.download('words')
 #def Parsing(parsed_text):
   #parsed_text=parsed_text.name
   #raw_party =parser.from_file(parsed_text) 
- # raw_party = raw_party['content']
+ # raw_party = raw_party['nt']
 #  return clean(raw_party)
   
 def Parsing(parsed_text):
@@ -207,15 +207,16 @@ def analysis(Manifesto,Search):
   fdist_Party=fDistance(text_Party)
   fDistancePlot(text_Party)
 
-  img1=cv2.imread('/sentimentAnalysis.png')
-  img2=cv2.imread('/wordcloud.png')
-  img3=cv2.imread('/sentimentAnalysis2.png')
-  img4=cv2.imread('/distplot.png')
+#   img1=cv2.imread('/sentimentAnalysis.png')
+#   img2=cv2.imread('/wordcloud.png')
+#   img3=cv2.imread('/sentimentAnalysis2.png')
+#   img4=cv2.imread('/distplot.png')
   
   searchRes=concordance(text_Party,Search)
   searChRes=clean(searchRes)
   searChRes=searchRes.replace(Search,"\u0332".join(Search))
-  return searChRes,fdist_Party,img4,img1,img2,img3
+  return searChRes,fdist_Party
+# ,img4,img1,img2,img3
 
   
 Search_txt=gr.inputs.Textbox()   
