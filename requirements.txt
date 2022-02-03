@@ -1,7 +1,12 @@
 gradio
+textract
 clean-text
-PyPDF2==1.26.0
 nltk
 wordcloud
 textblob
-matplotlib
+unidecode
+contractions
+#opencv-python
+#opencv-python-headless
+opencv-contrib-python
+opencv-python-headless
