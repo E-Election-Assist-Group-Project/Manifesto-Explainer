@@ -8,5 +8,6 @@ The analysis would bring clarity of ideas for the general public and precise iss
 Deployed at https://hf.space/gradioiframe/Sa-m/manifesto-explainer/+
 
 
-https://user-images.githubusercontent.com/44370096/160224533-db2b0dc9-9dfb-4077-a6f1-da4b1ae1dcb4.mp4
+
+https://user-images.githubusercontent.com/44370096/160224701-f71fa5ea-ea89-43f6-b3f4-431320fc1fdb.mp4
 
