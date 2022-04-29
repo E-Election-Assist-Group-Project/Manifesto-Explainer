@@ -3,6 +3,7 @@
 To understand and interpret the official manifestos of political parties published on their websites. 
 The analysis would bring clarity of ideas for the general public and precise issues taken or would be taken care  by the political parties.
 
+Created this project as a part of my B.Tech CSE final year project.The project is deployed on HF space and supported with the API pipeline which helps in easy usage of the service.      
 
 # Deployement 
 Deployed at https://hf.space/gradioiframe/Sa-m/manifesto-explainer/+
