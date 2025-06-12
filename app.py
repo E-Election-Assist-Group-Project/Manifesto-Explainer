@@ -45,7 +45,12 @@ import gradio as gr
 from zipfile import ZipFile
 import contractions
 import unidecode
+from groq import Groq
+from dotenv import load_dotenv
 
+load_dotenv()
+# IMPORTANT: Set your GROQ_API_KEY in a .env file in the root directory.
+# Example: GROQ_API_KEY="YOUR_GROQ_API_KEY_HERE"
 
 nltk.download('stopwords')
 nltk.download('punkt')
@@ -61,11 +66,72 @@ nltk.download('words')
   #raw_party =parser.from_file(parsed_text) 
  # raw_party = raw_party['nt']
 #  return clean(raw_party)
-  
+
 def Parsing(parsed_text):
   parsed_text=parsed_text.name
-  raw_party =textract.process(parsed_text, encoding='ascii',method='pdfminer') 
+  raw_party =textract.process(parsed_text, encoding='ascii',method='pdfminer')
   return clean(raw_party)
+
+
+def get_llm_keywords(text: str) -> dict:
+    """
+    Extracts keywords from text using Groq API and returns them as a dictionary.
+    """
+    try:
+        client = Groq()
+        # IMPORTANT: This function relies on the GROQ_API_KEY environment variable being set.
+        # Ensure you have a .env file in the root of your project with:
+        # GROQ_API_KEY="your_actual_api_key"
+        prompt = f"Extract the 5 most important keywords or key phrases from the following text. Present them as a comma-separated list. Text: {text}"
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            model="llama3-8b-8192",
+        )
+        response_content = chat_completion.choices[0].message.content
+        if response_content:
+            keywords_list = [keyword.strip() for keyword in response_content.split(',')]
+            return {keyword: 1.0 for keyword in keywords_list}
+        else:
+            print("Error: Empty response from Groq API")
+            return {}
+    except Exception as e:
+        print(f"Error in get_llm_keywords: {e}")
+        return {}
+
+
+def get_llm_summary(text: str) -> str:
+    """
+    Generates a summary for the given text using Groq API.
+    """
+    try:
+        client = Groq()
+        # IMPORTANT: This function relies on the GROQ_API_KEY environment variable being set.
+        # Ensure you have a .env file in the root of your project with:
+        # GROQ_API_KEY="your_actual_api_key"
+        prompt = f"Provide a concise summary (around 3-5 sentences) of the following text: {text}"
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            model="llama3-8b-8192",
+        )
+        response_content = chat_completion.choices[0].message.content
+        if response_content:
+            return response_content
+        else:
+            print("Error: Empty response from Groq API for summarization")
+            return "Summarization failed: Empty response."
+    except Exception as e:
+        print(f"Error in get_llm_summary: {e}")
+        return f"Summarization failed: {e}"
 
 
 #Added more stopwords to avoid irrelevant terms
@@ -179,6 +245,8 @@ def analysis(Manifesto,Search):
   text_Party=clean_text(raw_party)
   text_Party= Preprocess(text_Party)
 
+  summary = get_llm_summary(text_Party)
+
   df = pd.DataFrame(raw_party.split('\n'), columns=['Content'])
   df['Subjectivity'] = df['Content'].apply(getSubjectivity)
   df['Polarity'] = df['Content'].apply(getPolarity)
@@ -202,9 +270,13 @@ def analysis(Manifesto,Search):
   plt.imshow(wordcloud, interpolation="bilinear")
   plt.axis("off")
   plt.savefig('wordcloud.png')
-  plt.clf()  
-  
-  fdist_Party=fDistance(text_Party)
+  plt.clf()
+
+  # fdist_Party=fDistance(text_Party) # Old method
+  fdist_Party = get_llm_keywords(text_Party) # New method using LLM
+  if not fdist_Party: # Fallback if LLM fails or returns empty
+      print("LLM keyword extraction failed or returned empty, falling back to fDistance.")
+      fdist_Party = fDistance(text_Party)
   fDistancePlot(text_Party)
 
 #   img1=cv2.imread('/sentimentAnalysis.png')
@@ -215,21 +287,28 @@ def analysis(Manifesto,Search):
   searchRes=concordance(text_Party,Search)
   searChRes=clean(searchRes)
   searChRes=searchRes.replace(Search,"\u0332".join(Search))
-  return searChRes,fdist_Party
-# ,img4,img1,img2,img3
+  return searChRes, fdist_Party, summary, 'distplot.png', './sentimentAnalysis.png', 'wordcloud.png', 'sentimentAnalysis2.png'
 
-  
-Search_txt=gr.inputs.Textbox()   
-filePdf = gr.inputs.File()
-text = gr.outputs.Textbox(label='SEARCHED OUTPUT')
-mfw=gr.outputs.Label(label="Most Relevant Topics")
-# mfw2=gr.outputs.Image(label="Most Relevant Topics Plot")
-plot1=gr.outputs. Image(label='Sentiment Analysis')
-plot2=gr.outputs.Image(label='Word Cloud')
-plot3=gr.outputs.Image(label='Subjectivity')
-plot4=gr.outputs.Image(label='Frequency Distribution')
 
-io=gr.Interface(fn=analysis, inputs=[filePdf,Search_txt], outputs=[text,mfw,plot4,plot1,plot2,plot3],examples=[['Bjp_Manifesto_2019.pdf',],['Aap_Manifesto_2019.pdf',]], title='Manifesto Analysis')
+Search_txt = gr.Textbox(label="Search Term")
+filePdf = gr.File(label="Upload PDF Manifesto")
+text = gr.Textbox(label='SEARCHED OUTPUT')
+mfw = gr.Label(label="Most Relevant Topics")
+summary_output = gr.Textbox(label="LLM Summary")
+# mfw2=gr.Image(label="Most Relevant Topics Plot") # Kept commented as in original
+plot1 = gr.Image(label='Sentiment Analysis', type="filepath")
+plot2 = gr.Image(label='Word Cloud', type="filepath")
+plot3 = gr.Image(label='Subjectivity', type="filepath")
+plot4 = gr.Image(label='Frequency Distribution', type="filepath")
+
+io=gr.Interface(
+    fn=analysis,
+    inputs=[filePdf, Search_txt],
+    outputs=[text, mfw, summary_output, plot4, plot1, plot2, plot3],
+    # examples=[['Bjp_Manifesto_2019.pdf', 'development'], ['Aap_Manifesto_2019.pdf', 'education']], # Removed to prevent FileNotFoundError
+    title='Manifesto Analysis',
+    description="Upload a PDF manifesto, enter a search term, and see the analysis including LLM-generated keywords and summary."
+)
 io.launch(debug=False,share=True)
 
 

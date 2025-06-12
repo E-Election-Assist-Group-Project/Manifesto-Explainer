@@ -1,12 +1,15 @@
 gradio
-textract
+textract==1.6.3
 clean-text
 nltk
 wordcloud
 textblob
 unidecode
 contractions
+matplotlib
 #opencv-python
 #opencv-python-headless
 opencv-contrib-python
 opencv-python-headless
+groq
+python-dotenv
